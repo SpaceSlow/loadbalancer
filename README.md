@@ -4,3 +4,5 @@
   - `round-robin`
 - `load_balancer.backends` - список бэкенд серверов для балансировки нагрузки
 - `load_balancer.backends[].url` - адрес бэкенд сервера для балансировки нагрузки
+
+Примечание: пример конфигурационного файла доступен по пути `config/config.example.yaml`
