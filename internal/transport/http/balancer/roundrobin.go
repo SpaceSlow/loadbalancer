@@ -9,6 +9,8 @@ import (
 	"sync/atomic"
 
 	"github.com/SpaceSlow/loadbalancer/config"
+	"github.com/SpaceSlow/loadbalancer/pkg/networks"
+	"github.com/SpaceSlow/loadbalancer/pkg/statuscode"
 )
 
 type Backend struct {
@@ -100,5 +102,14 @@ func (b *RoundRobinBalancer) Handler(w http.ResponseWriter, r *http.Request) {
 	}
 	backend.Proxy.ErrorHandler = backend.ProxyErrorHandler()
 
-	backend.Proxy.ServeHTTP(w, r)
+	lw := statuscode.NewResponseWriter(w)
+	backend.Proxy.ServeHTTP(lw, r)
+	slog.Info(
+		"Request",
+		slog.String("ip", networks.ParseIP(r.RemoteAddr)),
+		slog.String("method", r.Method),
+		slog.String("uri", r.RequestURI),
+		slog.String("user-agent", r.UserAgent()),
+		slog.Int("status_code", lw.StatusCode),
+	)
 }
