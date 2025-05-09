@@ -41,21 +41,7 @@ func (b *Backend) HealthCheckLoop(ctx context.Context, cfg *config.HealthCheckCo
 		case <-ctx.Done():
 			slog.Info("Healthcheck stopped", slog.String("backend", b.URL.String()))
 		case <-ticker.C:
-			response, err := http.Get(uri)
-			if (err != nil || response.StatusCode != http.StatusOK) && b.IsAlive() {
-				b.SetAlive(false)
-				slog.Error(
-					"Backend has become unavailable (healthcheck)",
-					slog.String("backend", b.URL.String()),
-					slog.String("error", err.Error()),
-				)
-			} else if err == nil && response.StatusCode == http.StatusOK && !b.IsAlive() {
-				b.SetAlive(true)
-				slog.Info(
-					"Backend has become available (healthcheck)",
-					slog.String("backend", b.URL.String()),
-				)
-			}
+			b.healthCheck(uri)
 		}
 	}
 }
@@ -70,5 +56,29 @@ func (b *Backend) ProxyErrorHandler() func(w http.ResponseWriter, req *http.Requ
 		)
 		b.SetAlive(false)
 		http.Error(w, "Backend unavailable", http.StatusServiceUnavailable)
+	}
+}
+
+func (b *Backend) healthCheck(uri string) {
+	response, err := http.Get(uri)
+
+	var errAttr slog.Attr
+	switch {
+	case err != nil && b.IsAlive():
+		errAttr = slog.String("error", err.Error())
+		fallthrough
+	case response != nil && response.StatusCode != http.StatusOK && b.IsAlive():
+		b.SetAlive(false)
+		slog.Error(
+			"Backend has become unavailable (healthcheck)",
+			slog.String("backend", b.URL.String()),
+			errAttr,
+		)
+	case err == nil && response.StatusCode == http.StatusOK && !b.IsAlive():
+		b.SetAlive(true)
+		slog.Info(
+			"Backend has become available (healthcheck)",
+			slog.String("backend", b.URL.String()),
+		)
 	}
 }
