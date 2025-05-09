@@ -1,6 +1,7 @@
 package balancer
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -12,7 +13,7 @@ type Balancer interface {
 	Handler(w http.ResponseWriter, r *http.Request)
 }
 
-func NewBalancer(cfg *config.BalancerConfig) (Balancer, error) {
+func NewBalancer(ctx context.Context, cfg *config.BalancerConfig) (Balancer, error) {
 	if cfg.Port < 0 || cfg.Port > 65535 {
 		return nil, errors.New("[config] incorrect port number (port must be in bounds 0-65535)")
 	}
@@ -27,7 +28,7 @@ func NewBalancer(cfg *config.BalancerConfig) (Balancer, error) {
 
 	switch cfg.Strategy {
 	case config.RoundRobinStrategy:
-		return NewRoundRobinBalancer(cfg)
+		return NewRoundRobinBalancer(ctx, cfg)
 	}
 
 	return nil, errors.New("unexpected error")

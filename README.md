@@ -5,6 +5,8 @@
   - `round-robin`
 - `load_balancer.backends` - список бэкенд серверов для балансировки нагрузки
 - `load_balancer.backends[].url` - адрес бэкенд сервера для балансировки нагрузки
+- `load_balancer.backends[].healthcheck.path` - path опроса доступности бэкенд сервера
+- `load_balancer.backends[].healthcheck.interval` - интервал опроса доступности бэкенд сервера
 
 **Примечание**: пример конфигурационного файла доступен по пути `config/config.example.yaml`
 

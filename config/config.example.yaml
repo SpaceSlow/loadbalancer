@@ -3,5 +3,14 @@ load_balancer:
   strategy: round-robin
   backends:
     - url: http://localhost:8081
+      healthcheck:
+        interval: 5s
+        path: /health
     - url: http://localhost:8082
+      healthcheck:
+        interval: 5s
+        path: /health
     - url: http://localhost:8083
+      healthcheck:
+        interval: 5s
+        path: /health

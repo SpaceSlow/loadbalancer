@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log/slog"
 	"os"
@@ -23,7 +24,7 @@ func main() {
 		return
 	}
 
-	b, err := balancer.NewBalancer(&cfg.Balancer)
+	b, err := balancer.NewBalancer(context.Background(), &cfg.Balancer)
 	if err != nil {
 		slog.Error("Create balancer error occurred", slog.String("error", err.Error()))
 		return

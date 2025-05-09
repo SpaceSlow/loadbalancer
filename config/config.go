@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/goccy/go-yaml"
 )
@@ -21,8 +22,14 @@ func (s Strategy) IsValid() bool {
 	return false
 }
 
+type HealthCheckConfig struct {
+	Interval time.Duration `yaml:"interval"`
+	Path     string        `yaml:"path"`
+}
+
 type BackendConfig struct {
-	URL string `yaml:"url"`
+	URL         string            `yaml:"url"`
+	HealthCheck HealthCheckConfig `yaml:"healthcheck"`
 }
 
 type BalancerConfig struct {
