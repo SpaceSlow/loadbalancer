@@ -42,12 +42,20 @@ func (b *Backend) HealthCheckLoop(ctx context.Context, cfg *config.HealthCheckCo
 			slog.Info("Healthcheck stopped", slog.String("backend", b.URL.String()))
 		case <-ticker.C:
 			response, err := http.Get(uri)
-			if err != nil {
+			if (err != nil || response.StatusCode != http.StatusOK) && b.IsAlive() {
 				b.SetAlive(false)
-				slog.Error("Healthcheck error occurred", slog.String("error", err.Error()))
-				continue
+				slog.Error(
+					"Backend has become unavailable (healthcheck)",
+					slog.String("backend", b.URL.String()),
+					slog.String("error", err.Error()),
+				)
+			} else if err == nil && response.StatusCode == http.StatusOK && !b.IsAlive() {
+				b.SetAlive(true)
+				slog.Info(
+					"Backend has become available (healthcheck)",
+					slog.String("backend", b.URL.String()),
+				)
 			}
-			b.SetAlive(response.StatusCode == http.StatusOK)
 		}
 	}
 }
