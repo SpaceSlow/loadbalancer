@@ -18,7 +18,6 @@ type RoundRobinBalancer struct {
 	counter     atomic.Uint64
 	backendsNum uint64
 
-	port     uint16
 	backends []*Backend
 }
 
@@ -44,7 +43,6 @@ func NewRoundRobinBalancer(ctx context.Context, cfg *config.BalancerConfig) (*Ro
 	return &RoundRobinBalancer{
 		backendsNum: uint64(len(backends)),
 		backends:    backends,
-		port:        uint16(cfg.Port),
 	}, nil
 }
 
@@ -60,33 +58,26 @@ func (b *RoundRobinBalancer) nextAvailableBackend() *Backend {
 	return nil
 }
 
-func (b *RoundRobinBalancer) Start() error {
-	slog.Info("Starting balancer", slog.Int("port", int(b.port)))
-	server := http.Server{
-		Addr:    fmt.Sprintf(":%d", b.port),
-		Handler: http.HandlerFunc(b.Handler),
-	}
-	return server.ListenAndServe()
-}
+func (b *RoundRobinBalancer) Handler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		backend := b.nextAvailableBackend()
+		if backend == nil {
+			slog.Error("No available backends", slog.String("uri", r.RequestURI))
+			http.Error(w, "No available backends", http.StatusServiceUnavailable)
+			return
+		}
+		backend.Proxy.ErrorHandler = backend.ProxyErrorHandler()
 
-func (b *RoundRobinBalancer) Handler(w http.ResponseWriter, r *http.Request) {
-	backend := b.nextAvailableBackend()
-	if backend == nil {
-		slog.Error("No available backends", slog.String("uri", r.RequestURI))
-		http.Error(w, "No available backends", http.StatusServiceUnavailable)
-		return
-	}
-	backend.Proxy.ErrorHandler = backend.ProxyErrorHandler()
-
-	lw := statuscode.NewResponseWriter(w)
-	backend.Proxy.ServeHTTP(lw, r)
-	slog.Info(
-		"Request",
-		slog.String("ip", networks.ParseIP(r.RemoteAddr)),
-		slog.String("method", r.Method),
-		slog.String("uri", r.RequestURI),
-		slog.String("user-agent", r.UserAgent()),
-		slog.Int("status_code", lw.StatusCode),
-		slog.String("backend", backend.URL.String()),
-	)
+		lw := statuscode.NewResponseWriter(w)
+		backend.Proxy.ServeHTTP(lw, r)
+		slog.Info(
+			"Request",
+			slog.String("ip", networks.ParseIP(r.RemoteAddr)),
+			slog.String("method", r.Method),
+			slog.String("uri", r.RequestURI),
+			slog.String("user-agent", r.UserAgent()),
+			slog.Int("status_code", lw.StatusCode),
+			slog.String("backend", backend.URL.String()),
+		)
+	})
 }

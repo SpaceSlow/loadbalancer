@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -30,7 +32,13 @@ func main() {
 		return
 	}
 
-	if err = b.Start(); err != nil {
+	slog.Info("Starting balancer", slog.Int("port", cfg.Balancer.Port))
+	server := http.Server{
+		Addr:    fmt.Sprintf(":%d", cfg.Balancer.Port),
+		Handler: b.Handler(),
+	}
+
+	if err = server.ListenAndServe(); err != nil {
 		slog.Error("Server failed", slog.String("error", err.Error()))
 	}
 }

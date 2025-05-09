@@ -9,8 +9,7 @@ import (
 )
 
 type Balancer interface {
-	Start() error
-	Handler(w http.ResponseWriter, r *http.Request)
+	Handler() http.Handler
 }
 
 func NewBalancer(ctx context.Context, cfg *config.BalancerConfig) (Balancer, error) {
