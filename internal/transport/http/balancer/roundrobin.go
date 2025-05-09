@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"sync"
 	"sync/atomic"
 
 	"github.com/SpaceSlow/loadbalancer/config"
@@ -42,8 +41,6 @@ func (b *Backend) ProxyErrorHandler() func(w http.ResponseWriter, req *http.Requ
 type RoundRobinBalancer struct {
 	counter     atomic.Uint64
 	backendsNum uint64
-
-	mu sync.Mutex
 
 	backends []*Backend
 }
