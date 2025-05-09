@@ -45,10 +45,10 @@ type RoundRobinBalancer struct {
 	backends []*Backend
 }
 
-func NewRoundRobinBalancer(config *config.BalancerConfig) (*RoundRobinBalancer, error) {
-	backends := make([]*Backend, 0, len(config.Backends))
+func NewRoundRobinBalancer(cfg *config.BalancerConfig) (*RoundRobinBalancer, error) {
+	backends := make([]*Backend, 0, len(cfg.Backends))
 
-	for _, backendCfg := range config.Backends {
+	for _, backendCfg := range cfg.Backends {
 		backendURL, err := url.Parse(backendCfg.URL)
 		if err != nil {
 			return nil, fmt.Errorf("[config] incorrect url: %w", err)
