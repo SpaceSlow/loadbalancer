@@ -8,6 +8,7 @@ import (
 )
 
 type Balancer interface {
+	Start() error
 	Handler(w http.ResponseWriter, r *http.Request)
 }
 

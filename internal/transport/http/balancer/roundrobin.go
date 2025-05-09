@@ -42,6 +42,7 @@ type RoundRobinBalancer struct {
 	counter     atomic.Uint64
 	backendsNum uint64
 
+	port     uint16
 	backends []*Backend
 }
 
@@ -65,6 +66,7 @@ func NewRoundRobinBalancer(cfg *config.BalancerConfig) (*RoundRobinBalancer, err
 	return &RoundRobinBalancer{
 		backendsNum: uint64(len(backends)),
 		backends:    backends,
+		port:        uint16(cfg.Port),
 	}, nil
 }
 
@@ -78,6 +80,15 @@ func (b *RoundRobinBalancer) nextAvailableBackend() *Backend {
 		slog.Warn("Skip unavailable backend", slog.String("backend", backend.URL.String()))
 	}
 	return nil
+}
+
+func (b *RoundRobinBalancer) Start() error {
+	slog.Info("Starting balancer", slog.Int("port", int(b.port)))
+	server := http.Server{
+		Addr:    fmt.Sprintf(":%d", b.port),
+		Handler: http.HandlerFunc(b.Handler),
+	}
+	return server.ListenAndServe()
 }
 
 func (b *RoundRobinBalancer) Handler(w http.ResponseWriter, r *http.Request) {
