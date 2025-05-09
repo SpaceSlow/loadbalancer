@@ -26,7 +26,7 @@ func NewBalancer(cfg *config.BalancerConfig) (Balancer, error) {
 
 	switch cfg.Strategy {
 	case config.RoundRobinStrategy:
-		return nil, errors.New("not implemented")
+		return NewRoundRobinBalancer(cfg)
 	}
 
 	return nil, errors.New("unexpected error")
