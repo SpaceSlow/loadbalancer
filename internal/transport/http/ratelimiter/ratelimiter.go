@@ -60,6 +60,7 @@ func (rl *RateLimiter) refillBucketTokensJob(ctx context.Context) {
 		case <-ctx.Done():
 			slog.Info("Refill tokens in buckets job stopped")
 		case <-ticker.C:
+			slog.Info("Refill tokens in buckets")
 			rl.buckets.Range(func(ip, b any) bool {
 				bucket, ok := b.(*Bucket)
 				if !ok {
@@ -72,7 +73,6 @@ func (rl *RateLimiter) refillBucketTokensJob(ctx context.Context) {
 					return true
 				}
 				bucket.RefillTokens(bucket.refillRPS)
-				slog.Info("Refill tokens in buckets")
 				return true
 			})
 		}
