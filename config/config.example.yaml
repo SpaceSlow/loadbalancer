@@ -14,3 +14,7 @@ load_balancer:
       healthcheck:
         interval: 5s
         path: /health
+rate_limiter:
+  default_bucket:
+    capacity: 10
+    refill_rps: 1
