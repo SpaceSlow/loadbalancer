@@ -38,8 +38,18 @@ type BalancerConfig struct {
 	Backends []BackendConfig `yaml:"backends"`
 }
 
+type BucketConfig struct {
+	Capacity  float64 `yaml:"capacity"`
+	RefillRPS float64 `yaml:"refill_rps"`
+}
+
+type RateLimiterConfig struct {
+	DefaultBucket BucketConfig `yaml:"default_bucket"`
+}
+
 type Config struct {
-	Balancer BalancerConfig `yaml:"load_balancer"`
+	Balancer    BalancerConfig    `yaml:"load_balancer"`
+	RateLimiter RateLimiterConfig `yaml:"rate_limiter"`
 }
 
 func LoadConfig(filename string) (*Config, error) {
