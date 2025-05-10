@@ -9,7 +9,7 @@
 - `load_balancer.backends[].healthcheck.interval` - интервал опроса доступности бэкенд сервера
 - `rate_limiter.default_bucket` - настройки бакета по умолчанию 
 - `rate_limiter.default_bucket.capacity` - количество токенов в бакете по умолчанию
-- `rate_limiter.default_bucket.rps` - скорость пополнения токенов в бакете по умолчанию
+- `rate_limiter.default_bucket.rps` - скорость пополнения токенов в бакете по умолчанию (поддерживает десятичные числа)
 
 **Примечание**: пример конфигурационного файла доступен по пути `config/config.example.yaml`
 
