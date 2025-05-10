@@ -11,6 +11,7 @@ import (
 
 	"github.com/SpaceSlow/loadbalancer/config"
 	"github.com/SpaceSlow/loadbalancer/internal/transport/http/balancer"
+	"github.com/SpaceSlow/loadbalancer/internal/transport/http/ratelimiter"
 )
 
 func main() {
@@ -26,16 +27,19 @@ func main() {
 		return
 	}
 
-	b, err := balancer.NewBalancer(context.Background(), &cfg.Balancer)
+	ctx := context.Background()
+	b, err := balancer.NewBalancer(ctx, &cfg.Balancer)
 	if err != nil {
 		slog.Error("Create balancer error occurred", slog.String("error", err.Error()))
 		return
 	}
 
+	limiter := ratelimiter.NewRateLimiter(ctx, &cfg.RateLimiter)
+
 	slog.Info("Starting balancer", slog.Int("port", cfg.Balancer.Port))
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", cfg.Balancer.Port),
-		Handler: b.Handler(),
+		Handler: limiter.Middleware(b.Handler()),
 	}
 
 	if err = server.ListenAndServe(); err != nil {
