@@ -13,8 +13,7 @@
 
 **Примечание**: пример конфигурационного файла доступен по пути `config/config.example.yaml`
 
-### Сборка и запуск
+### Сборка и запуск балансировщика нагрузки
 ```bash 
-go build -o loadbalancer cmd/loadbalancer/main.go
-./loadbalancer -config <путь до файла конфигурации>
+docker-compose up -d
 ```
