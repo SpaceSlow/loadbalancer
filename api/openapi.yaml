@@ -1,0 +1,189 @@
+openapi: 3.0.3
+info:
+  title: Балансировщик нагрузки
+  version: 0.0.1
+servers:
+  - url: 'http://localhost:8080/api/v1/'
+tags:
+  - name: clients
+    description: Операции связанные с клиентами и их ограничениями
+paths:
+  /clients/:
+    post:
+      tags:
+        - clients
+      description: Создание клиента
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClientRequest'
+      responses:
+        '201':
+          description: Успешное создание клиента с ограничениями
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateClientResponse'
+        '400':
+          description: Неверно заполнены данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Имя клиента занято
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+    get:
+      tags:
+        - clients
+      description: Получение списка клиентов и их ограничений
+      responses:
+        '200':
+          description: Успешно получены клиенты
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListClientsResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+  /clients/{client_id}/:
+    put:
+      tags:
+        - clients
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClientRequest'
+      responses:
+        '200':
+          description: Успешное обновление ограничений клиента
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateClientResponse'
+        '400':
+          description: Неверно заполнены данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Клиента с таким client_id не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+    delete:
+      tags:
+        - clients
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Клиент успешно удален
+        '404':
+          description: Клиента с таким client_id не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+components:
+  schemas:
+    # requests/responses
+    CreateClientRequest:
+      $ref: '#/components/schemas/Client'
+    CreateClientResponse:
+      type: object
+      required:
+        - client_id
+        - capacity
+        - rate_per_sec
+        - token
+      properties:
+        client_id:
+          type: number
+          example: 1
+        capacity:
+          type: number
+          example: 100
+        rate_per_sec:
+          type: number
+          example: 1
+        token:
+          type: string
+          example: token
+    UpdateClientRequest:
+      type: object
+      required:
+        - capacity
+        - rate_per_sec
+      properties:
+        capacity:
+          type: number
+          example: 50
+        rate_per_sec:
+          type: number
+          example: 5
+    UpdateClientResponse:
+      $ref: '#/components/schemas/CreateClientResponse'
+    ListClientsResponse:
+      type: object
+      required:
+        - clients
+      properties:
+        clients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Client'
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          example: 418
+        message:
+          type: string
+          example: "some error message"
+    # models
+    Client:
+      type: object
+      required:
+        - client_id
+        - capacity
+        - rate_per_sec
+      properties:
+        client_id:
+          type: string
+          example: user1
+        capacity:
+          type: number
+          example: 50
+        rate_per_sec:
+          type: number
+          example: 5
