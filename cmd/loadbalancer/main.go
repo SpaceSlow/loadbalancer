@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 
 	"github.com/SpaceSlow/loadbalancer/config"
+	clientsrepo "github.com/SpaceSlow/loadbalancer/internal/repository/clients"
+	"github.com/SpaceSlow/loadbalancer/internal/service/clients"
 	"github.com/SpaceSlow/loadbalancer/internal/transport/http/server"
 )
 
@@ -25,9 +27,21 @@ func main() {
 	}
 
 	ctx := context.Background()
-	s, err := server.NewServer(ctx, cfg, nil) // TODO add client service
 
-	if err = s.Start(); err != nil {
+	repo, err := clientsrepo.NewPostgresRepo(ctx, cfg.DB)
+	if err != nil {
+		slog.Error("Connect to db error occurred", slog.String("error", err.Error()))
+		return
+	}
+	service := clients.NewService(repo)
+
+	srv, err := server.NewServer(ctx, cfg, service)
+	if err != nil {
+		slog.Error("Initialize server error occurred", slog.String("error", err.Error()))
+		return
+	}
+
+	if err = srv.Start(); err != nil {
 		slog.Error("Server failed", slog.String("error", err.Error()))
 	}
 }
