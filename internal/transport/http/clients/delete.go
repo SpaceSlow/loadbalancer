@@ -13,7 +13,7 @@ import (
 func (h *ClientHandlers) DeleteClient(w http.ResponseWriter, r *http.Request, clientID string) {
 	err := h.service.Delete(r.Context(), clientID)
 	if errors.Is(err, clients.ErrClientNotExists) {
-		dto.WriteErrorResponse(w, http.StatusConflict, "User with this username not exists")
+		dto.WriteErrorResponse(w, http.StatusNotFound, "User with this username not exists")
 		return
 	} else if err != nil {
 		slog.Error(
