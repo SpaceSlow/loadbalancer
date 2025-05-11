@@ -1,7 +1,6 @@
 package clients
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 
@@ -33,17 +32,5 @@ func (h *ClientHandlers) ListClients(w http.ResponseWriter, r *http.Request) {
 
 	response := dto.ListClientsResponse{Clients: responseClients}
 
-	responseJSON, err := json.Marshal(response)
-	if err != nil {
-		slog.Error(
-			"Marshal response error",
-			slog.String("path", r.RequestURI),
-			slog.String("method", r.Method),
-			slog.String("error", err.Error()),
-		)
-		httpjson.WriteJSON(w, http.StatusInternalServerError, nil)
-		return
-	}
-
-	httpjson.WriteJSON(w, http.StatusOK, responseJSON)
+	httpjson.WriteJSON(w, http.StatusOK, response)
 }

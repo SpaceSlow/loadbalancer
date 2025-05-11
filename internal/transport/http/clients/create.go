@@ -53,18 +53,5 @@ func (h *ClientHandlers) CreateClient(w http.ResponseWriter, r *http.Request) {
 		RPS:      client.RPS,
 	}
 
-	responseJSON, err := json.Marshal(response)
-	if err != nil {
-		slog.Error(
-			"Marshal response error",
-			slog.String("client_id", client.ID),
-			slog.String("path", r.RequestURI),
-			slog.String("method", r.Method),
-			slog.String("error", err.Error()),
-		)
-		httpjson.WriteJSON(w, http.StatusInternalServerError, nil)
-		return
-	}
-
-	httpjson.WriteJSON(w, http.StatusCreated, responseJSON)
+	httpjson.WriteJSON(w, http.StatusCreated, response)
 }
