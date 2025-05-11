@@ -24,6 +24,7 @@ func (h *Handlers) ListClients(w http.ResponseWriter, r *http.Request) {
 	for _, c := range clientSlice {
 		client := dto.Client{
 			ClientID: c.ID,
+			APIKey:   c.APIKey,
 			Capacity: c.Capacity,
 			RPS:      c.RPS,
 		}

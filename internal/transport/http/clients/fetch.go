@@ -27,6 +27,7 @@ func (h *Handlers) FetchClient(w http.ResponseWriter, r *http.Request, clientID 
 
 	response := dto.Client{
 		ClientID: client.ID,
+		APIKey:   client.APIKey,
 		Capacity: client.Capacity,
 		RPS:      client.RPS,
 	}
