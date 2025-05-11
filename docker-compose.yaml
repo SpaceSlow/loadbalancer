@@ -4,11 +4,33 @@ services:
     build: .
     ports:
       - 8080:8080
+    environment:
+      CONFIG_PATH: "/app/config/config.example.yaml"
     volumes:
       - ./config:/app/config
-    entrypoint: ["/app/loadbalancer", "-config", "/app/config/config.example.yaml"]
+    entrypoint: ["/bin/sh", "-c", "/app/loadbalancer -config $${CONFIG_PATH}"]
+    depends_on:
+      - db
     restart: unless-stopped
-    network_mode: bridge
+
+  db:
+    image: postgres:17.4-alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: "dbname"
+      POSTGRES_USER: "someuser"
+      POSTGRES_PASSWORD: "somepass"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB'"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
 
 volumes:
+  pgdata:
   config:

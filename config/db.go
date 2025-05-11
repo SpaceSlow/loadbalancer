@@ -1,5 +1,6 @@
 package config
 
 type DBConfig struct {
-	DSN string `yaml:"dsn"`
+	DBMS string `yaml:"dbms"`
+	DSN  string `yaml:"dsn"`
 }

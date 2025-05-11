@@ -19,4 +19,5 @@ rate_limiter:
     capacity: 10
     refill_rps: 1
 db:
+  dbms: postgres
   dsn: postgresql://someuser:somepass@db:5432/dbname?sslmode=disable

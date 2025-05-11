@@ -5,3 +5,4 @@ WORKDIR /app
 
 RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -o loadbalancer cmd/loadbalancer/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o migrator cmd/migrator/main.go
