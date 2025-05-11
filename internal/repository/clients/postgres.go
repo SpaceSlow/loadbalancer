@@ -26,9 +26,9 @@ SELECT client_id, api_key, capacity, rps
 FROM clients`
 
 	fetchClientQuery = `
-SELECT client_id, api_key, capacity, rps
+SELECT api_key, capacity, rps
 FROM clients
-WHERE id=$1`
+WHERE client_id=$1`
 
 	updateClientQuery = `
 UPDATE clients
@@ -39,7 +39,7 @@ WHERE client_id=$1
 	deleteClientQuery = `
 DELETE
 FROM clients
-WHERE id=$1`
+WHERE client_id=$1`
 )
 
 type PostgresRepo struct {
@@ -98,8 +98,10 @@ func (r *PostgresRepo) List(ctx context.Context) ([]clients.Client, error) {
 func (r *PostgresRepo) Fetch(ctx context.Context, clientID string) (*clients.Client, error) {
 	row := r.pool.QueryRow(ctx, fetchClientQuery, clientID)
 
-	var client clients.Client
-	err := row.Scan(&client.ID, &client.APIKey, &client.Capacity, &client.RPS)
+	client := clients.Client{
+		ID: clientID,
+	}
+	err := row.Scan(&client.APIKey, &client.Capacity, &client.RPS)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, clients.ErrClientNotExists
 	} else if err != nil {
