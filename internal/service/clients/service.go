@@ -32,7 +32,7 @@ func (s *Service) List(ctx context.Context) ([]clients.Client, error) {
 }
 
 func (s *Service) Fetch(ctx context.Context, clientID string) (*clients.Client, error) {
-	return s.Fetch(ctx, clientID)
+	return s.repo.Fetch(ctx, clientID)
 }
 
 func (s *Service) Update(ctx context.Context, clientID string, newCapacity, newRPS float64) (*clients.Client, error) {
