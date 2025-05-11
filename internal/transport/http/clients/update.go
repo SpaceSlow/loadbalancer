@@ -13,7 +13,7 @@ import (
 	"github.com/SpaceSlow/loadbalancer/pkg/httpjson"
 )
 
-func (h *ClientHandlers) UpdateClient(w http.ResponseWriter, r *http.Request, clientID string) {
+func (h *Handlers) UpdateClient(w http.ResponseWriter, r *http.Request, clientID string) {
 	defer r.Body.Close()
 	data, err := io.ReadAll(r.Body)
 	if err != nil {

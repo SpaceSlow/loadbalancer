@@ -8,7 +8,7 @@ import (
 	"github.com/SpaceSlow/loadbalancer/internal/transport/http/dto"
 )
 
-type ClientService interface {
+type Service interface {
 	Create(ctx context.Context, clientID string, capacity, rps float64) (*clients.Client, error)
 	List(ctx context.Context) ([]clients.Client, error)
 	Fetch(ctx context.Context, clientID string) (*clients.Client, error)
@@ -16,15 +16,15 @@ type ClientService interface {
 	Delete(ctx context.Context, clientID string) error
 }
 
-type ClientHandlers struct {
-	service ClientService
+type Handlers struct {
+	service Service
 }
 
-func NewClientHandlers(service ClientService) *ClientHandlers {
-	return &ClientHandlers{service: service}
+func NewHandlers(service Service) *Handlers {
+	return &Handlers{service: service}
 }
 
-func (h *ClientHandlers) Clients() http.Handler {
+func (h *Handlers) Clients() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
@@ -41,7 +41,7 @@ func (h *ClientHandlers) Clients() http.Handler {
 	})
 }
 
-func (h *ClientHandlers) ClientByID() http.Handler {
+func (h *Handlers) ClientByID() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		clientID := r.PathValue("id")
 

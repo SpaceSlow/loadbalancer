@@ -10,7 +10,7 @@ import (
 	"github.com/SpaceSlow/loadbalancer/pkg/httpjson"
 )
 
-func (h *ClientHandlers) DeleteClient(w http.ResponseWriter, r *http.Request, clientID string) {
+func (h *Handlers) DeleteClient(w http.ResponseWriter, r *http.Request, clientID string) {
 	err := h.service.Delete(r.Context(), clientID)
 	if errors.Is(err, clients.ErrClientNotExists) {
 		dto.WriteErrorResponse(w, http.StatusNotFound, "User with this username not exists")

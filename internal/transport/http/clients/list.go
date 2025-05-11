@@ -8,7 +8,7 @@ import (
 	"github.com/SpaceSlow/loadbalancer/pkg/httpjson"
 )
 
-func (h *ClientHandlers) ListClients(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) ListClients(w http.ResponseWriter, r *http.Request) {
 	clientSlice, err := h.service.List(r.Context())
 
 	if err != nil {

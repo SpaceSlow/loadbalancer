@@ -10,7 +10,7 @@ import (
 	"github.com/SpaceSlow/loadbalancer/pkg/httpjson"
 )
 
-func (h *ClientHandlers) FetchClient(w http.ResponseWriter, r *http.Request, clientID string) {
+func (h *Handlers) FetchClient(w http.ResponseWriter, r *http.Request, clientID string) {
 	client, err := h.service.Fetch(r.Context(), clientID)
 	if errors.Is(err, clients.ErrClientNotExists) {
 		dto.WriteErrorResponse(w, http.StatusNotFound, "User with this username not exists")

@@ -14,15 +14,15 @@ import (
 
 type Server struct {
 	server         *http.Server
-	clientHandlers clients.ClientHandlers
+	clientHandlers clients.Handlers
 }
 
-func NewServer(ctx context.Context, cfg *config.Config, clientService clients.ClientService) (*Server, error) {
+func NewServer(ctx context.Context, cfg *config.Config, clientService clients.Service) (*Server, error) {
 	const basePathLayout = "/api/v1%s"
 
 	mux := http.NewServeMux()
 
-	clientHandlers := clients.NewClientHandlers(clientService)
+	clientHandlers := clients.NewHandlers(clientService)
 
 	mux.Handle(fmt.Sprintf(basePathLayout, "/clients/"), clientHandlers.Clients())
 	mux.Handle(fmt.Sprintf(basePathLayout, "/clients/{id}/"), clientHandlers.ClientByID())
