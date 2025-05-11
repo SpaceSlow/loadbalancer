@@ -14,6 +14,7 @@
 **Примечания**: 
 - Пример конфигурационного файла доступен по пути `config/config.example.yaml`.
 - В `docker-compose.yaml` указывается `CONFIG_PATH` (по умолчанию используется: `./config/config.example.yaml`)
+- Документация к API доступна по `api/openapi.yaml`
 
 ### Сборка и запуск балансировщика нагрузки
 ```bash 
