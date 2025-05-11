@@ -3,6 +3,7 @@ package clients
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 type Client struct {
@@ -26,4 +27,12 @@ func (c *Client) Validate() error {
 	}
 
 	return errors.Join(errs...)
+}
+
+func ParseClientIDFromAPIKey(apiKey string) (string, error) {
+	parts := strings.Split(apiKey, "-")
+	if len(parts) < 3 {
+		return "", ErrIncorrectClientAPIKey
+	}
+	return parts[0], nil
 }

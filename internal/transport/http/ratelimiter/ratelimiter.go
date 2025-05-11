@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/SpaceSlow/loadbalancer/config"
+	"github.com/SpaceSlow/loadbalancer/internal/domain/clients"
 	"github.com/SpaceSlow/loadbalancer/internal/transport/http/dto"
-	"github.com/SpaceSlow/loadbalancer/pkg/networks"
 )
 
 type RateLimiter struct {
@@ -27,25 +27,49 @@ func NewRateLimiter(ctx context.Context, cfg *config.RateLimiterConfig) *RateLim
 	return limiter
 }
 
+func (rl *RateLimiter) AddBucket(clientID string, capacity, rps float64) {
+	rl.buckets.Store(clientID, &Bucket{
+		remainTokens: capacity,
+		capacity:     capacity,
+		refillRPS:    rps,
+	})
+}
+
+func (rl *RateLimiter) UpdateBucket(clientID string, capacity, rps float64) {
+	rl.DeleteBucket(clientID)
+	rl.AddBucket(clientID, capacity, rps)
+}
+
+func (rl *RateLimiter) DeleteBucket(clientID string) {
+	rl.buckets.Delete(clientID)
+}
+
 func (rl *RateLimiter) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		ip := networks.ParseIP(request.RemoteAddr)
-		b, ok := rl.buckets.Load(ip)
+		apiKey := request.URL.Query().Get("api_key")
+		if apiKey == "" {
+			dto.WriteErrorResponse(writer, http.StatusForbidden, "not rights")
+			return
+		}
+		clientID, err := clients.ParseClientIDFromAPIKey(apiKey)
+		if err != nil {
+			dto.WriteErrorResponse(writer, http.StatusForbidden, err.Error())
+			return
+		}
+		b, ok := rl.buckets.Load(clientID)
 		var bucket *Bucket
 		if !ok {
-			// create default bucket for anonymous ip
-			bucket = NewBucket(&rl.cfg.DefaultBucket)
-			rl.buckets.Store(ip, bucket)
-		} else {
-			bucket, ok = b.(*Bucket)
-			if !ok {
-				slog.Error(
-					"Failed type assertion to *Bucket",
-					slog.String("actual_type", fmt.Sprintf("%T", b)),
-				)
-				dto.WriteErrorResponse(writer, http.StatusInternalServerError, "Internal error")
-				return
-			}
+			dto.WriteErrorResponse(writer, http.StatusForbidden, err.Error())
+			return
+		}
+		bucket, ok = b.(*Bucket)
+		if !ok {
+			slog.Error(
+				"Failed type assertion to *Bucket",
+				slog.String("actual_type", fmt.Sprintf("%T", b)),
+			)
+			dto.WriteErrorResponse(writer, http.StatusInternalServerError, "Internal error")
+			return
 		}
 
 		if !bucket.TakeToken() {

@@ -15,6 +15,7 @@
 - Пример конфигурационного файла доступен по пути `config/config.example.yaml`.
 - В `docker-compose.yaml` указывается `CONFIG_PATH` (по умолчанию используется: `./config/config.example.yaml`)
 - Документация к API доступна по `api/openapi.yaml`
+- API-key указывается в query параметрах для проксируемых запросов. Пример: http://localhost:<port>/<path>/?api_key=<api_key>
 
 ### Сборка и запуск балансировщика нагрузки
 ```bash 
