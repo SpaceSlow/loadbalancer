@@ -1,6 +1,7 @@
 package clients
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/SpaceSlow/loadbalancer/internal/domain/clients"
@@ -8,11 +9,11 @@ import (
 )
 
 type ClientService interface {
-	Create(clientID string, capacity, rps float64) (*clients.Client, error)
-	List() ([]clients.Client, error)
-	Fetch(clientID string) (*clients.Client, error)
-	Update(clientID string, newCapacity, newRPS float64) (*clients.Client, error)
-	Delete(clientID string) error
+	Create(ctx context.Context, clientID string, capacity, rps float64) (*clients.Client, error)
+	List(ctx context.Context) ([]clients.Client, error)
+	Fetch(ctx context.Context, clientID string) (*clients.Client, error)
+	Update(ctx context.Context, clientID string, newCapacity, newRPS float64) (*clients.Client, error)
+	Delete(ctx context.Context, clientID string) error
 }
 
 type ClientHandlers struct {
