@@ -12,6 +12,7 @@ services:
     depends_on:
       - db
     restart: unless-stopped
+    network_mode: bridge
 
   db:
     image: postgres:17.4-alpine
