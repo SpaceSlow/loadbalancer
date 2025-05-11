@@ -34,8 +34,8 @@ func (h *ClientHandlers) CreateClient(w http.ResponseWriter, r *http.Request) {
 
 	client, err := h.service.Create(r.Context(), req.ClientID, req.Capacity, req.RPS)
 
-	if errors.Is(err, clients.ErrUserExists) {
-		dto.WriteErrorResponse(w, http.StatusConflict, "User with this username already exists")
+	if errors.Is(err, clients.ErrClientExists) {
+		dto.WriteErrorResponse(w, http.StatusConflict, "Client with this client_id already exists")
 		return
 	} else if err != nil {
 		slog.Error(
