@@ -2,12 +2,14 @@ package ratelimiter
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/SpaceSlow/loadbalancer/config"
+	"github.com/SpaceSlow/loadbalancer/internal/transport/http/dto"
 	"github.com/SpaceSlow/loadbalancer/pkg/networks"
 )
 
@@ -37,13 +39,17 @@ func (rl *RateLimiter) Middleware(next http.Handler) http.Handler {
 		} else {
 			bucket, ok = b.(*Bucket)
 			if !ok {
-				http.Error(writer, "Internal Error", http.StatusInternalServerError)
+				slog.Error(
+					"Failed type assertion to *Bucket",
+					slog.String("actual_type", fmt.Sprintf("%T", b)),
+				)
+				dto.WriteErrorResponse(writer, http.StatusInternalServerError, "Internal error")
 				return
 			}
 		}
 
 		if !bucket.TakeToken() {
-			http.Error(writer, "Rate limit exceeded", http.StatusTooManyRequests)
+			dto.WriteErrorResponse(writer, http.StatusTooManyRequests, "Rate limit exceeded")
 			return
 		}
 
