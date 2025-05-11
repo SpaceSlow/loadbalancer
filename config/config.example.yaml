@@ -18,3 +18,5 @@ rate_limiter:
   default_bucket:
     capacity: 10
     refill_rps: 1
+db:
+  dsn: postgresql://someuser:somepass@db:5432/dbname?sslmode=disable

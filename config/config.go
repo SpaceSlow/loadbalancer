@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Balancer    BalancerConfig    `yaml:"load_balancer"`
 	RateLimiter RateLimiterConfig `yaml:"rate_limiter"`
+	DB          DBConfig          `yaml:"db"`
 }
 
 func LoadConfig(filename string) (*Config, error) {
