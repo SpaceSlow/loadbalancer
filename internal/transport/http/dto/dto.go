@@ -4,17 +4,20 @@ type Client struct {
 	ClientID string  `json:"client_id"`
 	Capacity float64 `json:"capacity"`
 	RPS      float64 `json:"rate_per_sec"`
+	APIKey   string  `json:"api_key"`
 }
 
 type CreateClientRequest struct {
-	Client
+	ClientID string  `json:"client_id"`
+	Capacity float64 `json:"capacity"`
+	RPS      float64 `json:"rate_per_sec"`
 }
 
 type CreateClientResponse struct {
 	ClientID string  `json:"client_id"`
 	Capacity float64 `json:"capacity"`
 	RPS      float64 `json:"rate_per_sec"`
-	Token    string  `json:"token"`
+	APIKey   string  `json:"api_key"`
 }
 
 type UpdateClientRequest struct {
@@ -23,7 +26,10 @@ type UpdateClientRequest struct {
 }
 
 type UpdateClientResponse struct {
-	CreateClientResponse
+	ClientID string  `json:"client_id"`
+	Capacity float64 `json:"capacity"`
+	RPS      float64 `json:"rate_per_sec"`
+	APIKey   string  `json:"api_key"`
 }
 
 type ListClientsResponse struct {

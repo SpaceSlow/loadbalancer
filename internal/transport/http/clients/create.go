@@ -49,6 +49,7 @@ func (h *Handlers) CreateClient(w http.ResponseWriter, r *http.Request) {
 
 	response := dto.CreateClientResponse{
 		ClientID: client.ID,
+		APIKey:   client.APIKey,
 		Capacity: client.Capacity,
 		RPS:      client.RPS,
 	}

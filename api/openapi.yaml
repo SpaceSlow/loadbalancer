@@ -114,27 +114,23 @@ components:
   schemas:
     # requests/responses
     CreateClientRequest:
-      $ref: '#/components/schemas/Client'
-    CreateClientResponse:
       type: object
       required:
         - client_id
         - capacity
         - rate_per_sec
-        - token
       properties:
         client_id:
-          type: number
-          example: 1
+          type: string
+          example: user1
         capacity:
           type: number
-          example: 100
+          example: 50
         rate_per_sec:
           type: number
-          example: 1
-        token:
-          type: string
-          example: token
+          example: 5
+    CreateClientResponse:
+      $ref: '#/components/schemas/Client'
     UpdateClientRequest:
       type: object
       required:
@@ -148,7 +144,7 @@ components:
           type: number
           example: 5
     UpdateClientResponse:
-      $ref: '#/components/schemas/CreateClientResponse'
+      $ref: '#/components/schemas/Client'
     ListClientsResponse:
       type: object
       required:
@@ -177,6 +173,7 @@ components:
         - client_id
         - capacity
         - rate_per_sec
+        - api_key
       properties:
         client_id:
           type: string
@@ -187,3 +184,6 @@ components:
         rate_per_sec:
           type: number
           example: 5
+        api_key:
+          type: string
+          example: user1-50-5

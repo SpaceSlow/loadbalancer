@@ -7,10 +7,10 @@ import (
 )
 
 type Repository interface {
-	Create(ctx context.Context, clientID string, capacity, rps float64) (*clients.Client, error)
+	Create(ctx context.Context, clientID, apiKey string, capacity, rps float64) (*clients.Client, error)
 	List(ctx context.Context) ([]clients.Client, error)
 	Fetch(ctx context.Context, clientID string) (*clients.Client, error)
-	Update(ctx context.Context, clientID string, newCapacity, newRPS float64) (*clients.Client, error)
+	Update(ctx context.Context, clientID, newAPIKey string, newCapacity, newRPS float64) (*clients.Client, error)
 	Delete(ctx context.Context, clientID string) error
 }
 
@@ -23,7 +23,8 @@ func NewService(repo Repository) *Service {
 }
 
 func (s *Service) Create(ctx context.Context, clientID string, capacity, rps float64) (*clients.Client, error) {
-	return s.repo.Create(ctx, clientID, capacity, rps)
+	apiKey := clients.GenerateClientAPIKey(clientID, capacity, rps)
+	return s.repo.Create(ctx, clientID, apiKey, capacity, rps)
 }
 
 func (s *Service) List(ctx context.Context) ([]clients.Client, error) {
@@ -35,7 +36,8 @@ func (s *Service) Fetch(ctx context.Context, clientID string) (*clients.Client, 
 }
 
 func (s *Service) Update(ctx context.Context, clientID string, newCapacity, newRPS float64) (*clients.Client, error) {
-	return s.repo.Update(ctx, clientID, newCapacity, newRPS)
+	newAPIKey := clients.GenerateClientAPIKey(clientID, newCapacity, newRPS)
+	return s.repo.Update(ctx, clientID, newAPIKey, newCapacity, newRPS)
 }
 
 func (s *Service) Delete(ctx context.Context, clientID string) error {
