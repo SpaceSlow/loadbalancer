@@ -11,9 +11,12 @@
 - `rate_limiter.default_bucket.capacity` - количество токенов в бакете по умолчанию
 - `rate_limiter.default_bucket.rps` - скорость пополнения токенов в бакете по умолчанию (поддерживает десятичные числа)
 
-**Примечание**: пример конфигурационного файла доступен по пути `config/config.example.yaml`
+**Примечания**: 
+- Пример конфигурационного файла доступен по пути `config/config.example.yaml`.
+- В `docker-compose.yaml` указывается `CONFIG_PATH` (по умолчанию используется: `./config/config.example.yaml`)
 
 ### Сборка и запуск балансировщика нагрузки
 ```bash 
 docker-compose up -d
+make migrate_up
 ```
