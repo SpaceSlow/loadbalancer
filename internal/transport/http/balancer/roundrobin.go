@@ -10,6 +10,7 @@ import (
 	"sync/atomic"
 
 	"github.com/SpaceSlow/loadbalancer/config"
+	"github.com/SpaceSlow/loadbalancer/internal/transport/http/dto"
 	"github.com/SpaceSlow/loadbalancer/pkg/networks"
 	"github.com/SpaceSlow/loadbalancer/pkg/statuscode"
 )
@@ -63,7 +64,7 @@ func (b *RoundRobinBalancer) Handler() http.Handler {
 		backend := b.nextAvailableBackend()
 		if backend == nil {
 			slog.Error("No available backends", slog.String("uri", r.RequestURI))
-			http.Error(w, "No available backends", http.StatusServiceUnavailable)
+			dto.WriteErrorResponse(w, http.StatusServiceUnavailable, "No available backends")
 			return
 		}
 		backend.Proxy.ErrorHandler = backend.ProxyErrorHandler()

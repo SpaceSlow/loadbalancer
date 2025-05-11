@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/SpaceSlow/loadbalancer/config"
+	"github.com/SpaceSlow/loadbalancer/internal/transport/http/dto"
 )
 
 type Backend struct {
@@ -55,7 +56,7 @@ func (b *Backend) ProxyErrorHandler() func(w http.ResponseWriter, req *http.Requ
 			slog.String("error", err.Error()),
 		)
 		b.SetAlive(false)
-		http.Error(w, "Backend unavailable", http.StatusServiceUnavailable)
+		dto.WriteErrorResponse(w, http.StatusServiceUnavailable, "Backend unavailable")
 	}
 }
 
