@@ -40,7 +40,7 @@ func main() {
 
 	limiter := ratelimiter.NewRateLimiter(ctx, &cfg.RateLimiter)
 
-	service := clients.NewService(repo, limiter)
+	service := clients.NewService(cfg.RateLimiter.DefaultBucket, repo, limiter)
 
 	mux := router.NewRouter(service)
 
