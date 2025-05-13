@@ -2,12 +2,17 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
+
+	"golang.org/x/sync/errgroup"
 
 	"github.com/SpaceSlow/loadbalancer/config"
 	clientsrepo "github.com/SpaceSlow/loadbalancer/internal/repository/clients"
@@ -30,13 +35,30 @@ func main() {
 		return
 	}
 
-	ctx := context.Background()
+	rootCtx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	defer stop()
 
+	g, ctx := errgroup.WithContext(rootCtx)
+	context.AfterFunc(ctx, func() {
+		timeoutCtx, cancel := context.WithTimeout(context.Background(), cfg.MaxTimeoutShutdown)
+		defer cancel()
+
+		<-timeoutCtx.Done()
+		slog.Error("Failed to gracefully shutdown the service")
+	})
+
+	slog.Info("Initialize repo")
 	repo, err := clientsrepo.NewPostgresRepo(ctx, cfg.DB)
 	if err != nil {
-		slog.Error("Connect to db error occurred", slog.String("error", err.Error()))
+		slog.Error("Initialize repo error occurred", slog.String("error", err.Error()))
 		return
 	}
+	g.Go(func() error {
+		defer slog.Info("Closed clients repo")
+		<-ctx.Done()
+		repo.Close()
+		return nil
+	})
 
 	limiter := ratelimiter.NewRateLimiter(ctx, &cfg.RateLimiter)
 
@@ -44,6 +66,7 @@ func main() {
 
 	mux := router.NewRouter(service)
 
+	slog.Info("Initialize balancer")
 	b, err := balancer.NewBalancer(ctx, &cfg.Balancer)
 	if err != nil {
 		slog.Error("Create balancer error occurred", slog.String("error", err.Error()))
@@ -59,12 +82,30 @@ func main() {
 
 	mux.Handle("/", limiter.Middleware(b.Handler()))
 
-	slog.Info("Starting balancer", slog.Int("port", cfg.Balancer.Port))
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", cfg.Balancer.Port),
 		Handler: mux,
 	}
-	if err = server.ListenAndServe(); err != nil {
-		slog.Error("Server failed", slog.String("error", err.Error()))
+
+	g.Go(func() error {
+		slog.Info("Start balancer", slog.String("address", server.Addr))
+		return server.ListenAndServe()
+	})
+
+	g.Go(func() error {
+		defer slog.Info("Stopped http server")
+		<-ctx.Done()
+		shutdownTimeoutCtx, cancelShutdownTimeoutCtx := context.WithTimeout(
+			context.Background(),
+			cfg.HTTPServerTimeoutShutdown,
+		)
+		defer cancelShutdownTimeoutCtx()
+		return server.Shutdown(shutdownTimeoutCtx)
+	})
+	err = g.Wait()
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		slog.Error("Error occurred", slog.String("error", err.Error()))
+		return
 	}
+	slog.Info("Gracefully shutdown all services")
 }
