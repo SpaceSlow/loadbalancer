@@ -2,8 +2,6 @@ package ratelimiter
 
 import (
 	"sync"
-
-	"github.com/SpaceSlow/loadbalancer/config"
 )
 
 type Bucket struct {
@@ -13,14 +11,6 @@ type Bucket struct {
 	capacity     float64
 
 	refillRPS float64
-}
-
-func NewBucket(cfg *config.BucketConfig) *Bucket {
-	return &Bucket{
-		remainTokens: cfg.Capacity,
-		capacity:     cfg.Capacity,
-		refillRPS:    cfg.RefillRPS,
-	}
 }
 
 func (b *Bucket) TakeToken() bool {

@@ -32,6 +32,15 @@ func (h *Handlers) CreateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err = req.Validate(); err != nil {
+		dto.WriteErrorResponse(
+			w,
+			http.StatusBadRequest,
+			fmt.Sprintf("Validation error: %s", err.Error()),
+		)
+		return
+	}
+
 	client, err := h.service.Create(r.Context(), req.ClientID, req.Capacity, req.RPS)
 
 	if errors.Is(err, clients.ErrClientExists) {

@@ -1,7 +1,6 @@
 package clients
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
@@ -15,18 +14,6 @@ type Client struct {
 
 func GenerateClientAPIKey(clientID string, capacity, rps float64) string {
 	return fmt.Sprintf("%s-%0.2f-%0.2f", clientID, capacity, rps) // TODO: add strong algorithm
-}
-
-func (c *Client) Validate() error {
-	var errs []error
-	if c.Capacity < 1 {
-		errs = append(errs, ErrCapacityValidation)
-	}
-	if c.RPS <= 0 {
-		errs = append(errs, ErrRPSValidation)
-	}
-
-	return errors.Join(errs...)
 }
 
 func ParseClientIDFromAPIKey(apiKey string) (string, error) {

@@ -41,6 +41,7 @@ func (b *Backend) HealthCheckLoop(ctx context.Context, cfg *config.HealthCheckCo
 		select {
 		case <-ctx.Done():
 			slog.Info("Healthcheck stopped", slog.String("backend", b.URL.String()))
+			return
 		case <-ticker.C:
 			b.healthCheck(uri)
 		}

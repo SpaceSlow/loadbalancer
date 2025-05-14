@@ -9,10 +9,10 @@ import (
 )
 
 type Service interface {
-	Create(ctx context.Context, clientID string, capacity, rps float64) (*clients.Client, error)
+	Create(ctx context.Context, clientID string, capacity, rps *float64) (*clients.Client, error)
 	List(ctx context.Context) ([]clients.Client, error)
 	Fetch(ctx context.Context, clientID string) (*clients.Client, error)
-	Update(ctx context.Context, clientID string, newCapacity, newRPS float64) (*clients.Client, error)
+	Update(ctx context.Context, clientID string, newCapacity, newRPS *float64) (*clients.Client, error)
 	Delete(ctx context.Context, clientID string) error
 }
 

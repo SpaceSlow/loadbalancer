@@ -89,6 +89,7 @@ func (rl *RateLimiter) refillBucketTokensJob(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			slog.Info("Refill tokens in buckets job stopped")
+			return
 		case <-ticker.C:
 			slog.Info("Refill tokens in buckets")
 			rl.buckets.Range(func(ip, b any) bool {

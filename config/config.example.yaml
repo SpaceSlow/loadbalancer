@@ -2,15 +2,15 @@ load_balancer:
   port: 8080
   strategy: round-robin
   backends:
-    - url: http://192.168.3.31:8081
+    - url: http://localhost:8081
       healthcheck:
         interval: 5s
         path: /health
-    - url: http://192.168.3.31:8082
+    - url: http://localhost:8082
       healthcheck:
         interval: 5s
         path: /health
-    - url: http://192.168.3.31:8083
+    - url: http://localhost:8083
       healthcheck:
         interval: 5s
         path: /health
@@ -20,4 +20,4 @@ rate_limiter:
     refill_rps: 1
 db:
   dbms: postgres
-  dsn: postgresql://someuser:somepass@db:5432/dbname?sslmode=disable
+  dsn: postgresql://someuser:somepass@localhost:5432/dbname?sslmode=disable
