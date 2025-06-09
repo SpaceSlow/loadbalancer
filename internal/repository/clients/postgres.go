@@ -136,3 +136,7 @@ func (r *PostgresRepo) Delete(ctx context.Context, clientID string) error {
 	}
 	return nil
 }
+
+func (r *PostgresRepo) Close() {
+	r.pool.Close()
+}

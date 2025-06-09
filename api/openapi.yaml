@@ -117,8 +117,6 @@ components:
       type: object
       required:
         - client_id
-        - capacity
-        - rate_per_sec
       properties:
         client_id:
           type: string
@@ -133,9 +131,6 @@ components:
       $ref: '#/components/schemas/Client'
     UpdateClientRequest:
       type: object
-      required:
-        - capacity
-        - rate_per_sec
       properties:
         capacity:
           type: number

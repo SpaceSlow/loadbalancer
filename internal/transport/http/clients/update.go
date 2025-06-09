@@ -32,6 +32,15 @@ func (h *Handlers) UpdateClient(w http.ResponseWriter, r *http.Request, clientID
 		return
 	}
 
+	if err = req.Validate(); err != nil {
+		dto.WriteErrorResponse(
+			w,
+			http.StatusBadRequest,
+			fmt.Sprintf("Validation error: %s", err.Error()),
+		)
+		return
+	}
+
 	client, err := h.service.Update(r.Context(), clientID, req.Capacity, req.RPS)
 	if errors.Is(err, clients.ErrClientNotExists) {
 		dto.WriteErrorResponse(w, http.StatusNotFound, "User with this username not exists")
